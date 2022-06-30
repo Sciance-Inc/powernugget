@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "powernugget"
+version = "0.1.0"
+description = "Programatical customization of PowerBi dashboards"
+authors = ["hugo juhel <hugo.juhel@gmail.com>"]
+license = "agpl"
+
+[tool.semantic_release]
+version_variable = [
+    "powernugget/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+branch = "master"
+upload_to_pypi = false
+upload_to_release = true
+build_command = "pip install poetry && poetry build"
+
+[tool.poetry.scripts]
+powernugget = 'powernugget.cli:cli'
+
+[tool.poetry.dependencies]
+click = "^7.1.2"
+python = ">=3.8,<3.11.0"
+dynaconf = "^3.1"
+pydantic = "ç^1.9"
+Jinja2 = "^2.11"
+
+[tool.poetry.dev-dependencies]
+black = "^21.4b2"
+isort = "^5.10.1"
+pytest = "^7.1.2"
+pytest-cov = "^3.0.0"
+tox = "^3.25.1"
+python-semantic-release = "^7.29.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -16,9 +16,9 @@
 
 import pytest
 from pathlib import Path
-from powernugget.tasks_generator import TasksGenerator
-from powernugget.deserializer import _deserialize_yaml_as
-from powernugget.deserializer.models import Tasks_list
+from powernugget.tasks_generator import TaskGenerator
+from powernugget.descriptions import _deserialize_yaml_as
+from powernugget.descriptions.models import Tasks_list
 
 #############################################################################
 #                                   Script                                  #
@@ -46,7 +46,7 @@ def test_looping_task_generator():
     p = Path("tests/test_repo/").absolute() / "tasks.yaml"
     tasks_list: Tasks_list = _deserialize_yaml_as(p, Tasks_list)  # type: ignore
 
-    G = TasksGenerator(
+    G = TaskGenerator(
         tasks_list,
         dashboard_name="cssvdc",
         dashboard_data={"color_remapping": {"outer": {"from": "red", "to": "bleu"}, "inner": {"from": "red inner", "to": "bleu inner"}}},

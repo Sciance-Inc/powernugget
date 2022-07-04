@@ -10,9 +10,10 @@ dashboards:
         from: "red iner"
         to: "bleu inner"
   cssdc:
-    outer:
-      from: "red"
-      to: "bleu"
-    inner:
-      from: "red iner"
-      to: "bleu inner"
+    color_remapping:
+      outer:
+        from: "red"
+        to: "bleu"
+      inner:
+        from: "red iner"
+        to: "bleu inner"

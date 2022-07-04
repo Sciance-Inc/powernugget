@@ -17,8 +17,8 @@
 import pytest
 from pathlib import Path
 
-from powernugget.deserializer import _deserialize_yaml_as
-from powernugget.deserializer.models import Inventory, Tasks_list
+from powernugget.descriptions import _deserialize_yaml_as
+from powernugget.descriptions.models import Inventory, Tasks_list
 
 
 #############################################################################

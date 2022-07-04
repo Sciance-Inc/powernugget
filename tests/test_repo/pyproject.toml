@@ -1,0 +1,2 @@
+[tool.powernugget]
+custom_nuggets_repo = 'custom_nuggets'

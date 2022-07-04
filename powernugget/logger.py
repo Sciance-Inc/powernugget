@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+
 # logger.py
 #
 # Project name: power nugget
@@ -36,9 +37,7 @@ def get_module_logger(mod_name):
     except KeyError:
         logger = logging.getLogger(mod_name)
         handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s [%(name)-12s] : %(levelname)-1s : %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s [%(name)-12s] : %(levelname)-1s : %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(os.environ.get("LOG_LEVEL", "DEBUG").upper())

@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+
 # errors.py
 #
 # Project name: power nugget
@@ -8,6 +9,7 @@
 """
 Centralize errors for the powernugget package
 """
+
 # pylint: disable-all
 #############################################################################
 #                                 Packages                                  #
@@ -102,7 +104,14 @@ class Errors(metaclass=ExceptionFactory):  # type: ignore
     _PROTOTYPE = ErrorPrototype
 
     # Init and connection related errors
-    E010 = "start-up : foo"
+    E010 = "start-up : PowerNugget must be called from a folder, or the child of a folder, containing a '{target}' file / folder."
+    E011 = "start-up : failed to open the pyproject.toml file at '{path}'."
+    E012 = "start-up : the pyproject.toml powernugget's section is missing a mandatory field."
+
+    # Templating related errors
+    E020 = "templating : failed to load the template at '{path}'."
+    E021 = "templating : the loaded yaml is not valid."
+    E022 = "templating : the following definition is not a valid '{model}' : \n{definition}."
 
 
 class Warnings(UserWarning):

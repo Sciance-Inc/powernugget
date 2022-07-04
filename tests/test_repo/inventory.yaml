@@ -1,0 +1,18 @@
+schould_be_ignored: False
+
+dashboards:
+  cssvdc:
+    color_remapping:
+      outer:
+        from: "red"
+        to: "bleu"
+      inner:
+        from: "red iner"
+        to: "bleu inner"
+  cssdc:
+    outer:
+      from: "red"
+      to: "bleu"
+    inner:
+      from: "red iner"
+      to: "bleu inner"

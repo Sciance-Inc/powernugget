@@ -20,7 +20,7 @@ from pydantic import ValidationError
 import tomli
 
 
-from powernugget.deserializer.models import Pyproject
+from powernugget.descriptions.models import Pyproject
 from powernugget.errors import Errors
 
 #############################################################################

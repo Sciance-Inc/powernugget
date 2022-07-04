@@ -20,7 +20,7 @@ from typing import Union
 
 from pydantic import ValidationError
 
-from powernugget.deserializer.models import Inventory, Tasks_list
+from powernugget.descriptions.models import Inventory, Tasks_list
 from powernugget.errors import Errors
 
 #############################################################################

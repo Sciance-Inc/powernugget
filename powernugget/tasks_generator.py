@@ -22,7 +22,7 @@ from functools import singledispatch
 
 from jinja2 import Template
 
-from powernugget.deserializer.models import Tasks_list, Task
+from powernugget.descriptions.models import Tasks_list, Task
 from powernugget.errors import Errors
 
 
@@ -64,7 +64,7 @@ def _(src, ctx) -> Dict[str, Any]:
     return {key: _render(value, ctx) for key, value in src.items()}
 
 
-class TasksGenerator:
+class TaskGenerator:
     """
     Implements the task rendering logic
     """

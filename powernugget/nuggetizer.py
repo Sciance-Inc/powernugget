@@ -21,8 +21,7 @@ from pathlib import Path
 from powernugget.descriptions import _deserialize_yaml_as
 from powernugget.descriptions.models import Inventory, Tasks_list, Task
 from powernugget.tasks_generator import TaskGenerator
-from powernugget.builtins.nugget import Nugget, NuggetExecutionStatus
-from powernugget.builtins.nugget.models import NuggetResult
+from powernugget.builtins.nugget import Nugget, NuggetExecutionStatus, NuggetResult
 from powernugget.dashboard import Dashboard, PowerBIOpener
 from powernugget.errors import Errors
 

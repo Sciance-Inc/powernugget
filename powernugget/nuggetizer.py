@@ -14,13 +14,16 @@ Entrypoint of the Power Nugget client
 #                                 Packages                                  #
 #############################################################################
 
-from typing import Union, Optional, Generator
-from copy import deepcopy
+from collections import defaultdict
+from typing import Union, Optional, Dict, List
 from pathlib import Path
 
-from powernugget.deserializer import _deserialize_yaml_as
-from powernugget.deserializer.models import Inventory, Tasks_list, Task
-from powernugget.tasks_generator import TasksGenerator
+from powernugget.descriptions import _deserialize_yaml_as
+from powernugget.descriptions.models import Inventory, Tasks_list, Task
+from powernugget.tasks_generator import TaskGenerator
+from powernugget.builtins.nugget import Nugget, NuggetExecutionStatus
+from powernugget.builtins.nugget.models import NuggetResult
+from powernugget.dashboard import Dashboard, PowerBIOpener
 from powernugget.errors import Errors
 
 
@@ -65,17 +68,46 @@ class Nuggetizer:
         # self._root_folder: Path = _get_path_to_target("pyproject.toml")
         # self._config: Pyproject = _get_pyproject(root_folder)
 
-    def execute(self):
+    def _task_to_nugget(self, task: Task, dashboard: Dashboard) -> Nugget:
+        """
+        Transform a task to a concrete nugget
+        """
+
+        from powernugget.builtins import Debug
+
+        return Debug(dashboard=dashboard, **task.params)  # type: ignore
+
+    def execute(self) -> Dict[str, List[NuggetResult]]:
         """
         Render a dasboard template by executing the tasks against the inventory.
         """
 
         # Prepare the inventory and the task file to be templated
         inventory: Inventory = _deserialize_yaml_as(self._inventory_file_name, Inventory)  # type: ignore
-        tasks_list: Tasks_list = _deserialize_yaml_as(self._tasks_file_name, tasks_list)  # type: ignore
+        tasks_list: Tasks_list = _deserialize_yaml_as(self._tasks_file_name, Tasks_list)  # type: ignore
 
-        for dashboard_name, dashboard_data in inventory.dashboards.items():
-            # with dashboard_..
-            for task in TasksGenerator(tasks_list, dashboard_name=dashboard_name, dashboard_data=dashboard_data):
-                # task.execute()
-                print(task)
+        # Keep a record of every nugget executed
+        summary: Dict[str, List[NuggetResult]] = defaultdict(lambda: [])  # type: ignore
+
+        # Prepare the dashboard template by unzipping it.
+        # The context manager returns a callable to be called for generating an updatable copy of the Template
+        with PowerBIOpener(self._dashboard_template_file_name) as opener:
+
+            for dashboard_name, dashboard_data in inventory.dashboards.items():
+
+                # Create a dashboard representation to be updated by the tasks
+                dashboard = opener(dashboard_name)
+
+                # Generate the tasks to be executed : the tasks are contextualized from the dashboard context
+                for task in TaskGenerator(tasks_list, dashboard_name=dashboard_name, dashboard_data=dashboard_data):
+                    if not task.when:
+                        continue
+
+                    # Apply the nuggets to the dashboard and store the result
+                    nugget = self._task_to_nugget(task, dashboard)
+                    result = nugget.run()
+                    summary[dashboard_name].append(result)
+                    if result.status != NuggetExecutionStatus.SUCCESS:
+                        raise Errors.E030(nugget_name=nugget.nugget_name, dashboard=dashboard_name)  # type: ignore
+
+        return summary

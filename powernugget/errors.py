@@ -113,6 +113,14 @@ class Errors(metaclass=ExceptionFactory):  # type: ignore
     E021 = "templating : the loaded yaml is not valid."
     E022 = "templating : the following definition is not a valid '{model}' : \n{definition}."
 
+    # Nuggetizer related errors
+    E030 = "nuggetizer: failed to execute the '{nugget_name}' nugget for dashboard : {dashboard}."
+
+    # Dashboard content errors
+    E040 = "powerOpener : the dashboard template schould be a '.pbit' file. Got '{extension}'"
+    E041 = "powerOpener : failed to unpack the template '{path}' into a temporary folder."
+    E042 = "powerOpener : the template '{path}' does not seems to exist, or is not a valid zip file."
+
 
 class Warnings(UserWarning):
 

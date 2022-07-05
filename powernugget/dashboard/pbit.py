@@ -128,6 +128,8 @@ class PowerBIOpener:
         return _
 
     def __exit__(self, exc_type, exc_value, traceback):
-
         self._temp_dir.cleanup()
+        if exc_type:
+            return False
+
         return True

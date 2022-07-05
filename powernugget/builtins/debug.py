@@ -39,4 +39,4 @@ class Debug(Nugget):
         """
 
         print(self._msg)
-        return NuggetResult(status=NuggetExecutionStatus.SUCCESS, dashboard=self._dashboard, result={})
+        return NuggetResult(status=NuggetExecutionStatus.SUCCESS, result={})

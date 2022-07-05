@@ -60,6 +60,7 @@ class Task:
     when: Optional[Union[bool, str]] = None
     register_out: Optional[str] = Field(None, alias="register")
     # Register is actually a reserved keyword. I alias it to register_out to keep the code consistent with Ansible
+    on_error: Optional[str] = "raise"
 
 
 @dataclass

@@ -10,3 +10,4 @@
   params:
     msg: Doing non parametric stuff on {{ dashboard_name }}
   when: dashboard_name != 'cssvdc'
+

@@ -15,11 +15,12 @@ Entrypoint of the Power Nugget client
 #############################################################################
 
 from collections import defaultdict
-from typing import Union, Optional, Dict, List
+from typing import Union, Optional, Dict, List, Any
 from pathlib import Path
 from importlib import import_module
+from copy import deepcopy
 
-from powernugget.descriptions import _deserialize_yaml_as
+from powernugget.descriptions import _deserialize_yaml_as, _deserialize_yaml
 from powernugget.descriptions.models import Inventory, Tasks_list, Task
 from powernugget.tasks_generator import TaskGenerator
 from powernugget.builtins.nugget import Nugget, NuggetExecutionStatus, NuggetResult
@@ -45,6 +46,7 @@ class Nuggetizer(MixinLogable):
         path: Pathable,
         inventory_file_name: Optional[Pathable] = None,
         tasks_file_name: Optional[Pathable] = None,
+        vars_file_name: Optional[Pathable] = None,
         dashboard_template_file_name: Optional[Pathable] = None,
     ):
         """
@@ -54,6 +56,7 @@ class Nuggetizer(MixinLogable):
             path (Pathable): The root path of the project where the inventory and tasks files are located.
             inventory_file_name (Pathable, optional): An optional inventory file path. Defaults to "inventory.yaml".
             tasks_file_name (Pathable, optional): An optional tasks file path. Defaults to "tasks.yaml".
+            vars_file_name (Pathable, optional): An optional vars file path. All variables will be added to the rendering context. Defaults to "vars.yaml".
             dashboard_template_file_name (Pathable, optional): An optional dashboard template file. Defaults to "dashboard_template.pbit".
         """
 
@@ -64,6 +67,7 @@ class Nuggetizer(MixinLogable):
         self._path = base_path
         self._inventory_file_name: Path = Path(inventory_file_name or base_path / "inventory.yaml")
         self._tasks_file_name: Path = Path(tasks_file_name or base_path / "tasks.yaml")
+        self._vars_file_name: Path = Path(vars_file_name or base_path / "vars.yaml")
         self._dashboard_template_file_name: Path = Path(dashboard_template_file_name or base_path / "dashboard_template.pbit")
 
         # # Parse the Pyproject PowerNugget's section of the configuration
@@ -108,6 +112,11 @@ class Nuggetizer(MixinLogable):
         inventory: Inventory = _deserialize_yaml_as(self._inventory_file_name, Inventory)  # type: ignore
         tasks_list: Tasks_list = _deserialize_yaml_as(self._tasks_file_name, Tasks_list)  # type: ignore
 
+        # Extract the vars file (if any)
+        vars_: Dict[str, Any] = {}
+        if self._vars_file_name.exists():
+            vars_ = _deserialize_yaml(self._vars_file_name)
+
         # Keep a record of every nugget executed
         summary: Dict[str, List[NuggetResult]] = defaultdict(lambda: [])  # type: ignore
 
@@ -119,12 +128,20 @@ class Nuggetizer(MixinLogable):
 
                 self.info(f" *** PLAY [{dashboard_name}] *** \n")
 
+                # Create the templating magic variables
+                magics = {
+                    "vars": deepcopy(vars_),
+                    "dashboard_name": dashboard_name,
+                    "dashboard_data": dashboard_data,
+                    "root_path": str(self._path),
+                }
+
                 # Create a dashboard representation to be updated by the tasks.
                 # The closer callable can be executed to save the dahsboard.
                 dashboard, closer = opener(dashboard_name)
 
                 # Generate the tasks to be executed : the tasks are contextualized from the dashboard context
-                for task in TaskGenerator(tasks_list, dashboard_name=dashboard_name, dashboard_data=dashboard_data):
+                for task in TaskGenerator(tasks_list, **magics):
                     self.info(f"TASK [{task.name}]")
 
                     # Check if the Task must be executed

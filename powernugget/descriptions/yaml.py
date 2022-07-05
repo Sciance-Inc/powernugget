@@ -16,7 +16,7 @@ Primitive for yaml deserialization against PowerNugget's models
 
 from pathlib import Path
 import yaml
-from typing import Union
+from typing import Union, Dict, Any
 
 from pydantic import ValidationError
 
@@ -30,12 +30,11 @@ from powernugget.errors import Errors
 Models = Union[Inventory, Tasks_list]
 
 
-def _deserialize_yaml_as(path: Path, model: Models) -> Models:
+def _deserialize_yaml(path: Path) -> Dict[str, Any]:
     """
-    Load, render and parse a template into a model.
+    Load, render and parse a template into a dictionary.
     Args:
         path (Path): the path to the ressource to render.
-        model (Models): the model to unmarshall.
     """
 
     # Load the raw template
@@ -50,6 +49,19 @@ def _deserialize_yaml_as(path: Path, model: Models) -> Models:
         parsed = yaml.safe_load(raw_template)
     except BaseException as error:
         raise Errors.E021() from error  # type: ignore
+
+    return parsed
+
+
+def _deserialize_yaml_as(path: Path, model: Models) -> Models:
+    """
+    Load, render and parse a template into a model.
+    Args:
+        path (Path): the path to the ressource to render.
+        model (Models): the model to unmarshall.
+    """
+
+    parsed = _deserialize_yaml(path)
 
     # Unmarshal the template
     try:

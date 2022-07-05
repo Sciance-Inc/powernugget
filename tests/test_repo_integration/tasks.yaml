@@ -1,0 +1,6 @@
+- name: "Replace the Education logo : {{ dashboard_name }}"
+  nugget: powernugget.builtins.ReplaceImage
+  params:
+    source_name: "{{ item }}"
+    target_path: "{{ root_path }}/{{ dashboard_data['education_logo']['logo'] }}"
+  loop: "{{ vars['education_logo_occurences'] }}"

@@ -1,0 +1,12 @@
+dashboards:
+  cssvdc:
+    education_logo:
+      logo: "assets/cssvdc/logo.png"
+
+  cssdc:
+    education_logo:
+      logo: "assets/cssdc/logo.png"
+      occurences:
+        - education_quebec_logo4549671793701644.png
+        - education_quebec_logo07084030171919342.png
+        - education_quebec_logo07276980240148356.png

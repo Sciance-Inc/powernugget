@@ -114,7 +114,8 @@ class Errors(metaclass=ExceptionFactory):  # type: ignore
     E022 = "templating : the following definition is not a valid '{model}' : \n{definition}."
 
     # Nuggetizer related errors
-    E030 = "nuggetizer: failed to execute the '{nugget_name}' nugget for dashboard : {dashboard}."
+    E030 = "nuggetizer: failed to import the '{fqn}'. Does the nugget exist in the builtins env ?"
+    E031 = "nuggetizer: failed to execute the '{nugget_name}' nugget for dashboard : {dashboard}."
 
     # Dashboard content errors
     E040 = "powerOpener : the dashboard template schould be a '.pbit' file. Got '{extension}'"

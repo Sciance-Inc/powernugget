@@ -42,5 +42,6 @@ def test_nuggetizer_execute(ngtz):
 
     summary: Dict[str, List[NuggetResult]] = ngtz.execute()
 
-    for result in (item for v in summary.values() for item in v):
-        assert result.status == NuggetExecutionStatus.SUCCESS
+    results = [item for v in summary.values() for item in v]
+
+    assert results[0].status == NuggetExecutionStatus.SUCCESS

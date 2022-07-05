@@ -14,15 +14,16 @@ The Debug nugget echo a message to the standard output
 #                                 Packages                                  #
 #############################################################################
 
-from powernugget.builtins.nugget import Nugget, NuggetResult, NuggetExecutionStatus
+from powernugget.builtins.nugget import Nugget
 from powernugget.dashboard import Dashboard
+from powernugget.logger import MixinLogable
 
 #############################################################################
 #                                  Script                                   #
 #############################################################################
 
 
-class Debug(Nugget):
+class Debug(Nugget, MixinLogable):
     """
     The Debug nugget echo a message to the standard output
     """
@@ -30,13 +31,12 @@ class Debug(Nugget):
     nugget_name: str = "debug_nugget"
 
     def __init__(self, *, dashboard: Dashboard, msg: str):
-        super().__init__(dashboard=dashboard)
+        super().__init__(logger_name=Debug.nugget_name, dashboard=dashboard)
         self._msg = msg
 
-    def run(self) -> NuggetResult:
+    def run(self):
         """
         Print the message
         """
 
-        print(self._msg)
-        return NuggetResult(status=NuggetExecutionStatus.SUCCESS, result={})
+        self.debug(self._msg)

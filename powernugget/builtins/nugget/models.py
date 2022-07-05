@@ -15,12 +15,9 @@ Nugget execution'S result wrappers
 #############################################################################
 
 
-from typing import Dict, Any
+from typing import Optional, Any
 from enum import Enum
-from pydantic import Field
 from pydantic.dataclasses import dataclass
-
-from powernugget.dashboard import Dashboard
 
 #############################################################################
 #                                  Script                                   #
@@ -44,4 +41,4 @@ class NuggetResult:
     """
 
     status: NuggetExecutionStatus
-    result: Dict[str, Any] = Field(default_factory=dict())  # type: ignore
+    result: Optional[Any] = None  # type: ignore

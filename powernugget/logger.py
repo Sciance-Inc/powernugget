@@ -49,6 +49,8 @@ def get_module_logger(mod_name):
 
 class MixinLogable:
     def __init__(self, logger_name: str = "PowerNugget", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self._logger = get_module_logger(logger_name)
 
     def warn(self, msg):

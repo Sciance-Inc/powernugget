@@ -1,12 +1,12 @@
 - name: "Print a debug message : {{ dashboard_name }}"
-  nugget: powernugget.builtins.debug
+  nugget: powernugget.builtins.Debug
   params:
     msg: Replacing {{ item['from'] }} with {{ item['to'] }}
   loop: "{{ dashboard_data['color_remapping'].values() | list }}"
   when: dashboard_name == 'cssvdc'
 
 - name: "Print an other debug message : {{ dashboard_name }}"
-  nugget: powernugget.builtins.debug
+  nugget: powernugget.builtins.Debug
   params:
     msg: Doing non parametric stuff on {{ dashboard_name }}
   when: dashboard_name != 'cssvdc'

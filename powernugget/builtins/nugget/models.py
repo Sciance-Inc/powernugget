@@ -34,6 +34,7 @@ class NuggetExecutionStatus(Enum):
 
     SUCCESS = 1
     FAILED = 2
+    PASSED = 3
 
 
 @dataclass
@@ -43,5 +44,4 @@ class NuggetResult:
     """
 
     status: NuggetExecutionStatus
-    dashboard: Dashboard
     result: Dict[str, Any] = Field(default_factory=dict())  # type: ignore

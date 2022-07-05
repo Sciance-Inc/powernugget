@@ -5,6 +5,7 @@
 # Project name: power nugget
 # Author: Hugo Juhel
 #
+# Found usefull ressources here : https://www.reddit.com/r/PowerBI/comments/tj98fs/is_there_any_way_of_editing_the_layout_file/
 # description:
 """
 A PowerBI Opener : to open and load the data from a powerbi template, implemented as context manager
@@ -14,7 +15,8 @@ A PowerBI Opener : to open and load the data from a powerbi template, implemente
 #                                 Packages                                  #
 #############################################################################
 
-from typing import Dict, Any
+import os
+from typing import Dict, Any, Callable, Tuple
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import shutil
@@ -30,16 +32,26 @@ from powernugget.dashboard import Dashboard
 
 _DATA_MODEL = "DataModelSchema"
 _LAYOUT = "Report/Layout"
-_PBIT_ENCODING = "UTF-16 LE"
+_PBIT_ENCODING = "utf-16-le"
+_XML_ENCODING = "utf-8"
 
 
-def _load_json(src, encoding="utf-8") -> Dict[str, Any]:
+def _load_json(src) -> Dict[str, Any]:
     """
     Load a json file and return the content as a dictionary
     """
 
-    with open(src, "r", encoding=encoding) as f:
+    with open(src, "r", encoding=_PBIT_ENCODING) as f:
         return json.load(f)
+
+
+def _dump_json(trg, payload: Dict[str, Any]) -> None:
+    """
+    Save a payload as a json file
+    """
+
+    with open(trg, "w", encoding=_PBIT_ENCODING) as f:
+        json.dump(payload, f)
 
 
 class PowerBIOpener:
@@ -56,7 +68,8 @@ class PowerBIOpener:
         if extension != ".pbit":
             raise Errors.E040(extension=extension)  # type: ignore
 
-        self._path = path
+        self._src_template_path = path
+        self._destination_basepath = path.parent
         self._src_path: Path
 
     def __enter__(self):
@@ -68,31 +81,49 @@ class PowerBIOpener:
         self._temp_dir = TemporaryDirectory()
 
         # Unzip the dashboard into the temp folder
-        self._src_path = Path(str(self._temp_dir.name)) / "src"
+        self._unzipped_template_path = Path(str(self._temp_dir.name)) / "src"
         try:
-            shutil.unpack_archive(self._path, self._src_path, format="zip")
+            shutil.unpack_archive(self._src_template_path, self._unzipped_template_path, format="zip")
         except shutil.ReadError:
-            raise Errors.E041(path=self._path)  # type: ignore
+            raise Errors.E041(path=self._src_template_path)  # type: ignore
         except BaseException as error:
-            raise Errors.E041(path=self._path) from error  # type: ignore
+            raise Errors.E041(path=self._src_template_path) from error  # type: ignore
+
+        # Remove the SecurityBinding file
+        os.remove(self._unzipped_template_path / "SecurityBindings")
 
         # Load the dashboard data, to be reused accross iteration
-        data = _load_json(self._src_path / _DATA_MODEL, encoding=_PBIT_ENCODING)
-        layout = _load_json(self._src_path / _LAYOUT, encoding=_PBIT_ENCODING)
+        data = _load_json(self._unzipped_template_path / _DATA_MODEL)
+        layout = _load_json(self._unzipped_template_path / _LAYOUT)
 
         # Create a closure to be called to regenerate a new dashboard
-        def _(dashboard_name: str) -> Dashboard:
+        def _(dashboard_name: str) -> Tuple[Dashboard, Callable]:
             """
             Create a Dahsboard to be updated
             """
 
             # The unpacked dashboard for this iteration is kept inside the top level temp dir to be GC / cleanup at the same time
-            dst = Path(self._temp_dir.name) / dashboard_name
+            tmp_dashboard_path = Path(self._temp_dir.name) / dashboard_name
 
             # Copy the source dashboard into the temp folder
-            shutil.copytree(self._src_path, dst)
+            shutil.copytree(self._unzipped_template_path, tmp_dashboard_path)
 
-            return Dashboard(path=dst, data_model=deepcopy(data), layout=deepcopy(layout))
+            # Create a dashboard with the data and layout
+            dashboard = Dashboard(path=tmp_dashboard_path, data_model=deepcopy(data), layout=deepcopy(layout))
+
+            # Create a closure to be called for closing the dashboard
+            def close():
+                # Save the dashboard data
+                _dump_json(tmp_dashboard_path / _DATA_MODEL, dashboard.data_model)
+                _dump_json(tmp_dashboard_path / _LAYOUT, dashboard.layout)
+
+                # Zip the archive to the target path
+                out = Path(shutil.make_archive(str(self._destination_basepath / dashboard_name), "zip", tmp_dashboard_path))
+
+                # Replace the zip extension with the pbit extension
+                os.rename(out, out.parent / (out.stem + ".pbit"))
+
+            return dashboard, close
 
         return _
 

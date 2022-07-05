@@ -17,10 +17,26 @@ A dashboard representation
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, Any
+import json
+import shutil
 
 #############################################################################
 #                                  Script                                   #
 #############################################################################
+
+_DATA_MODEL = "DataModelSchema"
+_LAYOUT = "Report/Layout"
+_PBIT_ENCODING = "UTF-16 LE"
+
+
+def _dump_json(trg, payload: Dict[str, Any]) -> None:
+    """
+    Load a json file and return the content as a dictionary
+    """
+
+    with open(trg, "rw", encoding=_PBIT_ENCODING) as f:
+        f.truncate()
+        json.dump(payload, f)
 
 
 @dataclass

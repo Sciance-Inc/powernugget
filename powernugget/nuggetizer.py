@@ -94,8 +94,9 @@ class Nuggetizer:
 
             for dashboard_name, dashboard_data in inventory.dashboards.items():
 
-                # Create a dashboard representation to be updated by the tasks
-                dashboard = opener(dashboard_name)
+                # Create a dashboard representation to be updated by the tasks.
+                # The closer callable can be executed to save the dahsboard.
+                dashboard, closer = opener(dashboard_name)
 
                 # Generate the tasks to be executed : the tasks are contextualized from the dashboard context
                 for task in TaskGenerator(tasks_list, dashboard_name=dashboard_name, dashboard_data=dashboard_data):
@@ -108,5 +109,8 @@ class Nuggetizer:
                     summary[dashboard_name].append(result)
                     if result.status != NuggetExecutionStatus.SUCCESS:
                         raise Errors.E030(nugget_name=nugget.nugget_name, dashboard=dashboard_name)  # type: ignore
+
+                # Serialize the dashboard to the target folder
+                closer()
 
         return summary
